@@ -90,7 +90,7 @@ Bu web portalı şehrimizin akıllı şehir vizyonunu hayata geçirmek için tas
 #### 1. **Proje Dosyalarını İndirin**
 ```bash
 # Git ile proje klonlama
-git clone https://github.com/sivasbelediyesi/akillisehir.git
+git clone https://github.com/sivasbeltr/akillisehir.git
 cd akillisehir
 
 # Veya ZIP dosyası ile indirme
@@ -115,9 +115,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Manuel yükleme gerekirse:
-pip install django djangorestframework django-cors-headers
-pip install psycopg2-binary pillow django-crispy-forms
-pip install whitenoise gunicorn redis
+pip install django djangorestframework django-cors-headers djangorestframework-gis django-admin-interface
+pip install psycopg2-binary pillow
+pip install gunicorn
 ```
 
 #### 4. **Veritabanı Konfigürasyonu**
@@ -387,7 +387,7 @@ LOGGING = {
 - Telefon: +90 (346) 221 01 10
 
 **Proje Deposu:**
-- GitHub: https://github.com/sivasbelediyesi/akillisehir
+- GitHub: https://github.com/sivasbeltr/akillisehir
 - Dokümantasyon: https://docs.sivasakillisehir.gov.tr
 
 ---
