@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - Proje Detay Raporu</title>
+    <style>        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.4;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 8px;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 500;
+        }.header {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            margin: 8px 0 0 0;
+            font-size: 1em;
+            opacity: 0.9;
+        }        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }        .info-card {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            padding: 15px;
+            border-radius: 8px;
+        }        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #1e40af;
+            font-size: 0.95em;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+            font-weight: bold;
+        }.info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9em;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }        .info-label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .info-value {
+            color: #111827;
+            font-weight: 600;
+        }.progress-bar {
+            width: 100%;
+            height: 16px;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 6px 0;
+        }        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #6366f1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+        }        .status-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .status-live {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-completed {
+            background: #059669;
+            color: white;
+        }
+
+        .status-development {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .status-planning {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .status-testing {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .status-implementation {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-suspended {
+            background: #eab308;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #ef4444;
+            color: white;
+        }        .description-section {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+            border: 2px solid #cbd5e1;
+        }
+
+        .description-section h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #1e40af;
+            font-size: 1.1em;
+            font-weight: bold;
+        }.stakeholders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }        .stakeholder-card {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+            border: 1px solid #cbd5e1;
+        }.stakeholder-name {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+
+        .stakeholder-type {
+            color: #64748b;
+            font-size: 0.8em;
+        }        .progress-timeline {
+            margin-bottom: 20px;
+        }        .timeline-item {
+            background: #f8fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+            position: relative;
+            border: 1px solid #cbd5e1;
+        }.timeline-date {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3b82f6;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .timeline-title {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 6px;
+            font-size: 1em;
+        }
+
+        .timeline-progress {
+            background: #e2e8f0;
+            border-radius: 8px;
+            padding: 3px 8px;
+            display: inline-block;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 6px;
+            font-size: 0.8em;
+        }        .awards-section {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .awards-section h2 {
+            color: #92400e;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .award-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #d97706;
+        }        .award-name {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+
+        .award-org {
+            color: #a16207;
+            font-size: 0.8em;
+        }        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 0.85em;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }        @media print {
+            body {
+                margin: 0;
+                padding: 5px;
+                font-size: 12px;
+            }
+
+            .header {
+                background: #3b82f6 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>{{ project.name }}</h1>
+        <div class="subtitle">{{ project.category.name }} - Proje Detay Raporu</div>        <div style="margin-top: 10px;">
+            <span class="status-badge status-{{ project.status }}">{{ project.get_status_display }}</span>
+        </div>
+    </div>
+
+    <!-- Project Information Grid -->
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>📊 Proje Durumu</h3>
+            <div class="info-row">
+                <span class="info-label">İlerleme:</span>
+                <span class="info-value">%{{ project.progress_percentage }}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ project.progress_percentage }}%;">
+                    %{{ project.progress_percentage }}
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Durum:</span>
+                <span class="info-value">{{ project.get_status_display }}</span>
+            </div>
+            {% if project.is_featured %}
+            <div class="info-row">
+                <span class="info-label">Özellik:</span>
+                <span class="info-value">⭐ Öne Çıkan Proje</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="info-card">
+            <h3>📅 Tarih Bilgileri</h3>
+            {% if project.start_date %}
+            <div class="info-row">
+                <span class="info-label">Başlangıç:</span>
+                <span class="info-value">{{ project.start_date|date:"d.m.Y" }}</span>
+            </div>
+            {% endif %}
+            {% if project.planned_end_date %}
+            <div class="info-row">
+                <span class="info-label">Planlanan Bitiş:</span>
+                <span class="info-value">{{ project.planned_end_date|date:"d.m.Y" }}</span>
+            </div>
+            {% endif %}
+            {% if project.actual_end_date %}
+            <div class="info-row">
+                <span class="info-label">Gerçek Bitiş:</span>
+                <span class="info-value">{{ project.actual_end_date|date:"d.m.Y" }}</span>
+            </div>
+            {% endif %}
+            {% if project.duration_in_days %}
+            <div class="info-row">
+                <span class="info-label">Süre:</span>
+                <span class="info-value">{{ project.duration_in_days }} gün</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="info-card">
+            <h3>👨‍💼 Proje Yönetimi</h3>
+            {% if project.project_manager %}
+            <div class="info-row">
+                <span class="info-label">Proje Yöneticisi:</span>
+                <span class="info-value">{{ project.project_manager.get_full_name|default:project.project_manager.username }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="info-label">Kategori:</span>
+                <span class="info-value">{{ project.category.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Paydaş Sayısı:</span>
+                <span class="info-value">{{ project.stakeholders.count }} adet</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>💰 Bütçe ve Maliyet</h3>
+            {% if project.budget %}
+            <div class="info-row">
+                <span class="info-label">Toplam Bütçe:</span>
+                <span class="info-value">{{ project.budget|floatformat:0 }} ₺</span>
+            </div>
+            {% else %}
+            <div class="info-row">
+                <span class="info-label">Bütçe:</span>
+                <span class="info-value">Belirtilmemiş</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="info-label">Ödül Sayısı:</span>
+                <span class="info-value">{{ awards.count }} adet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Description -->
+    <div class="description-section">
+        <h2>📝 Proje Açıklaması</h2>
+        <p><strong>Kısa Açıklama:</strong> {{ project.short_description }}</p>        <div style="margin-top: 15px;">
+            <strong>Detaylı Açıklama:</strong>
+            <div style="margin-top: 8px; white-space: pre-line;">{{ project.description }}</div>
+        </div>
+    </div>
+
+    <!-- Stakeholders -->
+    {% if project.stakeholders.all %}    <div style="margin-bottom: 20px;">
+        <h2 style="color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em;">🤝 Proje Paydaşları</h2>
+        <div class="stakeholders-grid">
+            {% for stakeholder in project.stakeholders.all %}
+            <div class="stakeholder-card">
+                <div class="stakeholder-name">{{ stakeholder.name }}</div>
+                <div class="stakeholder-type">{{ stakeholder.get_stakeholder_type_display }}</div>                {% if stakeholder.contact_person %}
+                <div style="margin-top: 5px; font-size: 0.75em; color: #64748b;">
+                    İrtibat: {{ stakeholder.contact_person }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Progress Timeline -->
+    {% if progress_records %}
+    <div class="page-break"></div>
+    <div class="progress-timeline">
+        <h2 style="color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em;">📈 İlerleme Zaman Çizelgesi</h2>
+        {% for progress in progress_records %}
+        <div class="timeline-item">
+            <div class="timeline-date">{{ progress.date|date:"d.m.Y" }}</div>
+            <div class="timeline-title">{{ progress.title }}</div>
+            <div class="timeline-progress">İlerleme: %{{ progress.progress_percentage }}</div>
+            <div style="color: #64748b;">{{ progress.description }}</div>            {% if progress.created_by %}
+            <div style="margin-top: 6px; font-size: 0.75em; color: #94a3b8;">
+                Ekleyen: {{ progress.created_by.get_full_name|default:progress.created_by.username }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Awards -->
+    {% if awards %}
+    <div class="awards-section">
+        <h2>🏆 Ödüller ve Başarılar</h2>
+        {% for award in awards %}
+        <div class="award-item">
+            <div class="award-name">{{ award.name }}</div>
+            <div class="award-org">{{ award.organization }} - {{ award.award_date|date:"d.m.Y" }}</div>            {% if award.description %}
+            <div style="margin-top: 5px; color: #78716c; font-size: 0.8em;">{{ award.description }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <strong>Sivas Belediyesi Akıllı Şehir Müdürlüğü</strong><br>
+        Rapor Tarihi: {% now "d.m.Y H:i" %}<br>
+        Bu rapor {{ project.name }} projesi için otomatik olarak oluşturulmuştur.
+    </div>
+</body>
+
+</html>

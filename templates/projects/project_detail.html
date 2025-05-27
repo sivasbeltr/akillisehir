@@ -1,0 +1,329 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 text-gray-900 dark:text-white py-20 overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 opacity-20 dark:opacity-20">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-300 dark:bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+        <div class="absolute top-0 right-4 w-64 h-64 bg-purple-300 dark:bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animate-delay-[2000ms]"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li><a href="{% url 'cms:index' %}" class="text-blue-600 dark:text-cyan-400 hover:underline">Ana Sayfa</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400 text-xs"></i></li>
+                <li><a href="{% url 'projects:project_list' %}" class="text-blue-600 dark:text-cyan-400 hover:underline">Projeler</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400 text-xs"></i></li>
+                <li class="text-gray-600 dark:text-gray-300">{{ project.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- Project Info -->
+            <div>
+                <!-- Category Badge -->
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-cyan-400 dark:to-blue-500 rounded-xl flex items-center justify-center mr-3">
+                        <i class="fas fa-{{ project.category.icon|default:'folder' }} text-white"></i>
+                    </div>
+                    <span class="text-lg font-medium text-blue-600 dark:text-cyan-400">{{ project.category.name }}</span>
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-4xl md:text-5xl py-2 font-black mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                    {{ project.name }}
+                </h1>
+
+                <!-- Description -->
+                <p class="text-xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                    {{ project.short_description|safe }}
+                </p>
+
+                <!-- Status and Progress -->
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/50 dark:border-white/20">
+                        <div class="text-sm text-gray-600 dark:text-gray-300 mb-2">Durum</div>
+                        {% if project.status == 'live' %}
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                            <span class="font-bold text-green-600 dark:text-green-400">Canlı</span>
+                        </div>
+                        {% elif project.status == 'completed' %}
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">Tamamlandı</span>
+                        </div>
+                        {% elif project.status == 'development' %}
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                            <span class="font-bold text-blue-600 dark:text-blue-400">Geliştiriliyor</span>
+                        </div>
+                        {% else %}
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
+                            <span class="font-bold text-gray-600 dark:text-gray-400">{{ project.get_status_display }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/50 dark:border-white/20">
+                        <div class="text-sm text-gray-600 dark:text-gray-300 mb-2">İlerleme</div>
+                        <div class="flex items-center">
+                            <div class="flex-1 mr-3">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-cyan-400 dark:to-blue-500 h-2 rounded-full"
+                                        style="width: {{ project.progress_percentage }}%"></div>
+                                </div>
+                            </div>
+                            <span class="font-bold text-blue-600 dark:text-cyan-400">%{{ project.progress_percentage }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    {% if user.is_staff %}
+                    <a href="{% url 'projects:project_print' project.slug %}?format=pdf"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500 text-white rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 dark:hover:from-purple-600 dark:hover:to-pink-600 transition-all">
+                        <i class="fas fa-print mr-2"></i>PDF İndir
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'projects:project_list' %}"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-white/50 dark:border-white/20 text-gray-800 dark:text-white rounded-xl font-medium hover:bg-white dark:hover:bg-white/20 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i>Projelere Dön
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project Image -->
+            <div>
+                {% if project.featured_image %}
+                <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                    <img src="{{ project.featured_image.url }}" alt="{{ project.name }}"
+                        class="w-full h-96 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+                {% else %}
+                <div class="relative h-96 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-cyan-500 dark:to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <i class="fas fa-{{ project.category.icon|default:'project-diagram' }} text-8xl text-white/80"></i>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Details -->
+<section class="py-16 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Project Description -->
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Proje Hakkında</h2>
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{{ project.description|safe }}</p>
+                    </div>
+                </div>
+
+                <!-- Project Timeline -->
+                {% if recent_progress %}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">İlerleme Durumu</h2>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Son {{ recent_progress|length }} güncelleme</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        {% for progress in recent_progress %}
+                        <div class="relative flex">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-cyan-400 dark:to-blue-500 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-sm">%{{ progress.progress_percentage }}</span>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ progress.title }}</h3>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ progress.date|date:"d.m.Y" }}</span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-300 mb-3">{{ progress.description }}</p>
+
+                                {% if progress.image or progress.attachment %}
+                                <div class="flex items-center space-x-4">
+                                    {% if progress.image %}
+                                    <div class="relative w-20 h-20 rounded-lg overflow-hidden">
+                                        <img src="{{ progress.image.url }}" alt="Progress image for {{ progress.title }}" class="w-full h-full object-cover">
+                                    </div>
+                                    {% endif %}
+                                    {% if progress.attachment %}
+                                    <a href="{{ progress.attachment.url }}"
+                                        class="inline-flex items-center px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+                                        <i class="fas fa-paperclip mr-2"></i>Dosya İndir
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if not forloop.last %}
+                        <div class="ml-5 w-0.5 h-6 bg-gray-300 dark:bg-gray-600"></div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 mb-8">
+                    <p class="text-gray-600 dark:text-gray-300">Henüz ilerleme güncellemesi mevcut değil.</p>
+                </div>
+                {% endif %}
+
+                <!-- Awards -->
+                {% if project.awards.all %}
+                <div class="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <i class="fas fa-trophy text-yellow-500 mr-3"></i>Ödüller ve Başarılar
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for award in project.awards.all %}
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-medal text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">{{ award.name }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">{{ award.organization }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ award.award_date|date:"d.m.Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-8">
+                <!-- Project Info -->
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Proje Bilgileri</h3>
+                    <div class="space-y-4">
+                        {% if project.start_date %}
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-start text-blue-500 dark:text-cyan-400 w-5"></i>
+                            <div class="ml-3">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Başlangıç Tarihi</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ project.start_date|date:"d.m.Y" }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if project.planned_end_date %}
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-check text-green-500 dark:text-green-400 w-5"></i>
+                            <div class="ml-3">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Planlanan Bitiş</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ project.planned_end_date|date:"d.m.Y" }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if project.actual_end_date %}
+                        <div class="flex items-center">
+                            <i class="fas fa-flag-checkered text-purple-500 dark:text-purple-400 w-5"></i>
+                            <div class="ml-3">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Gerçek Bitiş</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ project.actual_end_date|date:"d.m.Y" }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if project.budget %}
+                        <div class="flex items-center">
+                            <i class="fas fa-money-bill-wave text-green-500 dark:text-green-400 w-5"></i>
+                            <div class="ml-3">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Bütçe</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ project.budget|floatformat:0 }} ₺</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if project.project_manager %}
+                        <div class="flex items-center">
+                            <i class="fas fa-user-tie text-indigo-500 dark:text-indigo-400 w-5"></i>
+                            <div class="ml-3">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Proje Yöneticisi</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ project.project_manager.get_full_name|default:project.project_manager.username }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Stakeholders -->
+                {% if project.stakeholders.all %}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Paydaşlar</h3>
+                    <div class="space-y-3">
+                        {% for stakeholder in project.stakeholders.all %}
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-cyan-400 dark:to-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                {% if stakeholder.stakeholder_type == 'department' %}
+                                <i class="fas fa-building text-white text-sm"></i>
+                                {% elif stakeholder.stakeholder_type == 'company' %}
+                                <i class="fas fa-industry text-white text-sm"></i>
+                                {% elif stakeholder.stakeholder_type == 'institution' %}
+                                <i class="fas fa-university text-white text-sm"></i>
+                                {% elif stakeholder.stakeholder_type == 'ngo' %}
+                                <i class="fas fa-hands-helping text-white text-sm"></i>
+                                {% else %}
+                                <i class="fas fa-users text-white text-sm"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-white text-sm">{{ stakeholder.name }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ stakeholder.get_stakeholder_type_display }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Related Projects -->
+                {% if related_projects %}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Benzer Projeler</h3>
+                    <div class="space-y-4">
+                        {% for related in related_projects %}
+                        <a href="{% url 'projects:project_detail' related.slug %}"
+                            class="block group">
+                            <div class="bg-white dark:bg-gray-700 rounded-xl p-4 hover:shadow-lg transition-all">
+                                <h4 class="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors text-sm line-clamp-2 mb-2">
+                                    {{ related.name }}
+                                </h4>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ related.get_status_display }}</span>
+                                    <span class="text-xs font-medium text-blue-600 dark:text-cyan-400">%{{ related.progress_percentage }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                    <p class="text-gray-600 dark:text-gray-300">Benzer proje bulunamadı.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

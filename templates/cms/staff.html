@@ -1,0 +1,502 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 py-20">
+    <!-- Background Elements -->
+    <div class="absolute inset-0 opacity-10 dark:opacity-20">
+        <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300 dark:bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+        <div class="absolute top-0 right-4 w-72 h-72 bg-purple-300 dark:bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 dark:bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100/80 dark:bg-white/10 backdrop-blur-sm border border-blue-200 dark:border-white/20 text-sm font-medium mb-8">
+                <i class="fas fa-users mr-2 text-sivas-600 dark:text-cyan-400"></i>
+                <span class="text-blue-800 dark:text-white">Profesyonel Ekip</span>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl py-2 font-black mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                Ekibimiz
+            </h1>
+
+            <p class="text-xl md:text-2xl mb-8 text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+                Sivas'ı akıllı şehir haline getirmek için çalışan yetenekli ve deneyimli ekibimizle tanışın.
+            </p>
+
+            <!-- Stats -->
+            {% if total_staff > 0 %}
+            <div class="flex flex-wrap justify-center gap-6 mb-8">
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-4 border border-gray-200 dark:border-gray-700">
+                    <div class="text-3xl font-bold text-blue-600 dark:text-cyan-400">{{ total_staff }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Toplam Personel</div>
+                </div>
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-4 border border-gray-200 dark:border-gray-700">
+                    <div class="text-3xl font-bold text-indigo-600 dark:text-blue-400">{{ departments|length }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Departman</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Staff Section -->
+<section class="py-16 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if total_staff > 0 %}
+            <!-- Department Filter -->
+            <div class="mb-12">
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <button onclick="filterStaff('all')" class="filter-btn active bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:shadow-lg">
+                        Tüm Ekip
+                    </button>
+                    {% for dept_key, dept_data in departments.items %}
+                        <button onclick="filterStaff('{{ dept_key }}')" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                            {{ dept_data.name }} ({{ dept_data.count }})
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Staff Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {% for dept_key, dept_data in departments.items %}
+                    {% for staff in dept_data.members %}
+                        <div class="staff-card department-{{ dept_key }} group bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer"
+                             onclick="showStaffModal({{ staff.id }})">
+                            
+                            <!-- Profile Image -->
+                            <div class="relative overflow-hidden">
+                                {% if staff.has_profile_image %}
+                                    <img src="{{ staff.profile_image.url }}" 
+                                         alt="{{ staff.full_name }}" 
+                                         class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500">
+                                {% else %}
+                                    <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-300 dark:group-hover:from-gray-600 dark:group-hover:to-gray-500 transition-all duration-500">
+                                        <i class="fas fa-user text-6xl text-blue-400 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-gray-200 transition-colors duration-300"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Department Badge -->
+                                <div class="absolute top-4 left-4">
+                                    <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full {{ staff.get_department_badge_class }}">
+                                        {{ staff.get_department_display }}
+                                    </span>
+                                </div>
+
+                                <!-- Manager Badge -->
+                                {% if staff.is_manager %}
+                                    <div class="absolute top-4 right-4">
+                                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                                            <i class="fas fa-crown mr-1"></i>Yönetici
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Content -->
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+                                    {{ staff.full_name }}
+                                </h3>
+                                
+                                <p class="text-lg text-blue-600 dark:text-cyan-400 font-semibold mb-3">
+                                    {{ staff.get_position_display }}
+                                </p>
+
+                                {% if staff.bio %}
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+                                        {{ staff.bio|truncatewords:20 }}
+                                    </p>
+                                {% endif %}
+
+                                <!-- Contact Info -->
+                                <div class="space-y-2 mb-4">
+                                    {% if staff.email %}
+                                        <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                            <i class="fas fa-envelope mr-2 w-4"></i>
+                                            <span class="truncate">{{ staff.email }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if staff.office_location %}
+                                        <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                            <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                            <span>{{ staff.office_location }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Specialties -->
+                                {% if staff.get_specialties_list %}
+                                    <div class="flex flex-wrap gap-1 mb-4">
+                                        {% for specialty in staff.get_specialties_list|slice:":3" %}
+                                            <span class="inline-flex px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
+                                                {{ specialty }}
+                                            </span>
+                                        {% endfor %}
+                                        {% if staff.get_specialties_list|length > 3 %}
+                                            <span class="inline-flex px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full">
+                                                +{{ staff.get_specialties_list|length|add:"-3" }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                <!-- View Details Button -->
+                                <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                    <button class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 transform group-hover:scale-105">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        Detayları Görüntüle
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Staff Found -->
+            <div class="text-center py-16">
+                <div class="w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-users text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Henüz Personel Eklenmemiş</h3>
+                <p class="text-gray-600 dark:text-gray-300">Ekip üyelerimizin bilgileri yakında eklenecektir.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Staff Detail Modal -->
+<div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden opacity-0 transition-all duration-300">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-all duration-300" id="modalContent">
+            <!-- Modal content will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    window.filterStaff = function(department) {
+        const cards = document.querySelectorAll('.staff-card');
+        const buttons = document.querySelectorAll('.filter-btn');
+        
+        // Update buttons
+        buttons.forEach(btn => {
+            btn.classList.remove('active', 'bg-gradient-to-r', 'from-blue-500', 'to-indigo-600', 'text-white');
+            btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+        });
+        
+        event.target.classList.add('active', 'bg-gradient-to-r', 'from-blue-500', 'to-indigo-600', 'text-white');
+        event.target.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+        
+        // Filter cards
+        cards.forEach(card => {
+            if (department === 'all' || card.classList.contains(`department-${department}`)) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, 10);
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 300);
+            }
+        });
+    };
+    
+    // Modal functionality
+    window.showStaffModal = function(staffId) {
+        const modal = document.getElementById('staffModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Show loading
+        modalContent.innerHTML = `
+            <div class="flex items-center justify-center p-16">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
+            </div>
+        `;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+        
+        // Fetch staff details
+        fetch(`/ekibimiz/${staffId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderStaffModal(data.staff);
+                } else {
+                    modalContent.innerHTML = `
+                        <div class="p-8 text-center">
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Hata</h3>
+                            <p class="text-gray-600 dark:text-gray-300">${data.error}</p>
+                            <button onclick="closeStaffModal()" class="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                Kapat
+                            </button>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                modalContent.innerHTML = `
+                    <div class="p-8 text-center">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Bağlantı Hatası</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Personel bilgileri yüklenirken bir hata oluştu.</p>
+                        <button onclick="closeStaffModal()" class="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            Kapat
+                        </button>
+                    </div>
+                `;
+            });
+    };
+    
+    function renderStaffModal(staff) {
+        const modalContent = document.getElementById('modalContent');
+        
+        const profileImage = staff.profile_image ? 
+            `<img src="${staff.profile_image}" alt="${staff.full_name}" class="w-full h-80 object-cover">` :
+            `<div class="w-full h-80 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                <i class="fas fa-user text-8xl text-blue-400 dark:text-gray-400"></i>
+            </div>`;
+        
+        const specialties = staff.specialties.length > 0 ? 
+            staff.specialties.map(skill => 
+                `<span class="inline-flex px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full">${skill}</span>`
+            ).join(' ') : 
+            '<span class="text-gray-500 dark:text-gray-400 italic">Belirtilmemiş</span>';
+        
+        const socialLinks = [];
+        if (staff.linkedin_url) socialLinks.push(`<a href="${staff.linkedin_url}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"><i class="fab fa-linkedin text-2xl"></i></a>`);
+        if (staff.github_url) socialLinks.push(`<a href="${staff.github_url}" target="_blank" class="text-gray-800 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100"><i class="fab fa-github text-2xl"></i></a>`);
+        if (staff.website_url) socialLinks.push(`<a href="${staff.website_url}" target="_blank" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200"><i class="fas fa-globe text-2xl"></i></a>`);
+        
+        modalContent.innerHTML = `
+            <!-- Header -->
+            <div class="relative">
+                ${profileImage}
+                <button onclick="closeStaffModal()" class="absolute top-4 right-4 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <!-- Department Badge -->
+                <div class="absolute top-4 left-4">
+                    <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full ${staff.department_badge_class}">
+                        ${staff.department}
+                    </span>
+                </div>
+                
+                ${staff.is_manager ? `
+                    <div class="absolute top-16 left-4">
+                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                            <i class="fas fa-crown mr-1"></i>Yönetici
+                        </span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- Content -->
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">${staff.full_name}</h2>
+                    <p class="text-xl text-blue-600 dark:text-cyan-400 font-semibold mb-4">${staff.position}</p>
+                    
+                    ${staff.years_of_service > 0 ? `
+                        <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 rounded-full text-sm font-semibold">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            ${staff.years_of_service} yıl hizmet
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Bio -->
+                        ${staff.bio ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                                    <i class="fas fa-user-circle mr-2 text-blue-500"></i>
+                                    Hakkında
+                                </h3>
+                                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">${staff.bio}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Education -->
+                        ${staff.education ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                                    <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>
+                                    Eğitim
+                                </h3>
+                                <p class="text-gray-600 dark:text-gray-300">${staff.education}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Specialties -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                                <i class="fas fa-cogs mr-2 text-blue-500"></i>
+                                Uzmanlık Alanları
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${specialties}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Contact Info -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                                <i class="fas fa-address-book mr-2 text-blue-500"></i>
+                                İletişim Bilgileri
+                            </h3>
+                            <div class="space-y-3">
+                                ${staff.email ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-envelope w-5 text-gray-400 mr-3"></i>
+                                        <a href="mailto:${staff.email}" class="text-blue-600 dark:text-cyan-400 hover:underline">${staff.email}</a>
+                                    </div>
+                                ` : ''}
+                                
+                                ${staff.phone ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-phone w-5 text-gray-400 mr-3"></i>
+                                        <a href="tel:${staff.phone}" class="text-gray-600 dark:text-gray-300">${staff.phone}</a>
+                                    </div>
+                                ` : ''}
+                                
+                                ${staff.mobile ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mobile-alt w-5 text-gray-400 mr-3"></i>
+                                        <a href="tel:${staff.mobile}" class="text-gray-600 dark:text-gray-300">${staff.mobile}</a>
+                                    </div>
+                                ` : ''}
+                                
+                                ${staff.office_phone ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-phone-office w-5 text-gray-400 mr-3"></i>
+                                        <span class="text-gray-600 dark:text-gray-300">${staff.office_phone}${staff.extension ? ` / ${staff.extension}` : ''}</span>
+                                    </div>
+                                ` : ''}
+                                
+                                ${staff.office_location ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-map-marker-alt w-5 text-gray-400 mr-3"></i>
+                                        <span class="text-gray-600 dark:text-gray-300">${staff.office_location}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Social Links -->
+                        ${socialLinks.length > 0 ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                                    <i class="fas fa-share-alt mr-2 text-blue-500"></i>
+                                    Sosyal Medya
+                                </h3>
+                                <div class="flex space-x-4">
+                                    ${socialLinks.join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Work Info -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                                <i class="fas fa-briefcase mr-2 text-blue-500"></i>
+                                İş Bilgileri
+                            </h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">İşe Başlama:</span>
+                                    <span class="text-gray-900 dark:text-white font-semibold">${staff.hire_date}</span>
+                                </div>
+                                ${staff.years_of_service > 0 ? `
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600 dark:text-gray-400">Hizmet Yılı:</span>
+                                        <span class="text-gray-900 dark:text-white font-semibold">${staff.years_of_service} yıl</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    window.closeStaffModal = function() {
+        const modal = document.getElementById('staffModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    };
+    
+    // Close modal on outside click
+    document.getElementById('staffModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeStaffModal();
+        }
+    });
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeStaffModal();
+        }
+    });
+});
+</script>
+
+<style>
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.staff-card {
+    transition: all 0.3s ease;
+}
+
+.staff-card:hover {
+    transform: translateY(-8px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.staff-card {
+    animation: fadeIn 0.5s ease-out;
+}
+</style>
+{% endblock %}

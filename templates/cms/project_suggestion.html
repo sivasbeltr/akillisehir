@@ -1,0 +1,195 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 text-gray-900 dark:text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100/80 dark:bg-white/10 backdrop-blur-sm border border-blue-200 dark:border-white/20 text-sm font-medium mb-8">
+                <i class="fas fa-lightbulb mr-2 text-yellow-600 dark:text-yellow-400"></i>
+                <span class="text-blue-800 dark:text-white">Fikirlerinizi Paylaşın</span>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl py-3 font-black mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                Proje Önerisi Gönderin
+            </h1>
+
+            <p class="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Sivas'ın geleceğine katkıda bulunun. Akıllı şehir projesi fikirlerinizi bizimle paylaşın ve şehrimizin dijital dönüşümünde rol alın.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-20 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Mesajlar -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="mb-8 p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-50 dark:bg-green-900/50 border-green-500 text-green-700 dark:text-green-200{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/50 border-red-500 text-red-700 dark:text-red-200{% else %}bg-blue-50 dark:bg-blue-900/50 border-blue-500 text-blue-700 dark:text-blue-200{% endif %}">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle text-green-500 dark:text-green-400"></i>
+                    {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle text-red-500 dark:text-red-400"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle text-blue-500 dark:text-blue-400"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    {{ message }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Form -->
+        <div class="bg-gray-50 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-700">
+            <form method="post" class="space-y-6">
+                {% csrf_token %} <!-- Kişisel Bilgiler -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-user mr-2 text-blue-500 dark:text-cyan-400"></i>
+                            Ad Soyad *
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-envelope mr-2 text-blue-500 dark:text-cyan-400"></i>
+                            E-posta *
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-phone mr-2 text-blue-500 dark:text-cyan-400"></i>
+                            Telefon
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-folder mr-2 text-blue-500 dark:text-cyan-400"></i>
+                            Kategori *
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.category.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Proje Bilgileri -->
+                <div class="border-t border-gray-300 dark:border-gray-700 pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                        <i class="fas fa-project-diagram mr-2 text-purple-500 dark:text-purple-400"></i>
+                        Proje Detayları
+                    </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Proje Başlığı *
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Proje Açıklaması *
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Beklenen Fayda *
+                            </label>
+                            {{ form.expected_benefit }}
+                            {% if form.expected_benefit.errors %}
+                            <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.expected_benefit.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Tahmini Maliyet
+                            </label>
+                            {{ form.estimated_cost }}
+                            {% if form.estimated_cost.errors %}
+                            <div class="mt-1 text-red-500 dark:text-red-400 text-sm">{{ form.estimated_cost.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div> <!-- Gönder Butonu -->
+                <div class="flex justify-center pt-6">
+                    <button type="submit" class="group relative bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-cyan-500 dark:to-blue-600 text-white px-12 py-4 rounded-xl text-lg font-bold hover:from-blue-700 hover:to-indigo-700 dark:hover:from-cyan-600 dark:hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-2xl shadow-blue-500/25 dark:shadow-cyan-500/25">
+                        <span class="relative z-10 flex items-center">
+                            <i class="fas fa-paper-plane mr-3"></i>
+                            Proje Önerisini Gönder
+                        </span>
+                        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-cyan-400 dark:to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bilgilendirme -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-cyan-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Hızlı Değerlendirme</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">Önerileriniz 48 saat içinde değerlendirilir</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-green-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Güvenli Sistem</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">Bilgileriniz güvenli şekilde saklanır</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-handshake text-purple-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Geri Bildirim</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">Sonuç hakkında bilgilendirilirsiniz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

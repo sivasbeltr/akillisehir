@@ -1,0 +1,8 @@
+django
+psycopg
+python-dotenv
+djangorestframework
+djangorestframework-gis
+django-admin-interface
+weasyprint
+pillow
