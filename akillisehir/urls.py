@@ -27,5 +27,5 @@ urlpatterns = [
 ]
 
 # Media files serving during development
-if settings.DEBUG:
+if settings.DEBUG and not getattr(settings, "USE_MINIO", False):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
