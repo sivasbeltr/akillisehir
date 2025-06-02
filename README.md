@@ -38,6 +38,152 @@ Bu web portalı şehrimizin akıllı şehir vizyonunu hayata geçirmek için tas
 - **PDF Dışa Aktarma:** Proje detaylarının profesyonel rapor formatında indirimi
 - **Paydaş Yönetimi:** Proje katılımcılarının ve sorumlu birimlerinin takibi
 
+## 🐳 Docker ile Kurulum
+
+### Ön Gereksinimler
+- Docker Engine 20.10+
+- Docker Compose v2+
+- Çalışan PostgreSQL sunucusu (PostGIS extension ile)
+- Çalışan MinIO sunucusu
+
+### Hızlı Başlangıç
+
+1. **Projeyi klonlayın:**
+```bash
+git clone https://github.com/sivasbelediyesi/akillisehir.git
+cd akillisehir
+```
+
+2. **Environment dosyasını oluşturun:**
+```bash
+cp .env.example .env
+# .env dosyasını düzenleyerek kendi ayarlarınızı yapın
+```
+
+3. **Docker container'ını başlatın:**
+```bash
+# Development için
+docker compose up -d
+
+# Production için
+docker compose -f compose.yml up -d
+```
+
+### Environment Ayarları
+
+`.env` dosyasında aşağıdaki ayarları yapılandırın:
+
+```env
+# Django ayarları
+SECRET_KEY=your-secret-key-here
+DEBUG=False
+
+# Veritabanı ayarları
+DATABASE_HOST=your-postgres-host
+DATABASE_PORT=5432
+DATABASE_NAME=akillisehir
+DATABASE_USER=your-db-user
+DATABASE_PASSWORD=your-db-password
+
+# MinIO ayarları
+MINIO_ENDPOINT=your-minio-endpoint:9000
+MINIO_ACCESS_KEY=your-minio-access-key
+MINIO_SECRET_KEY=your-minio-secret-key
+MINIO_BUCKET_NAME=akillisehir
+MINIO_CUSTOM_DOMAIN=your-domain.com
+
+# Superuser ayarları (ilk kurulumda)
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@sivas.bel.tr
+DJANGO_SUPERUSER_PASSWORD=your-admin-password
+```
+
+### Docker Hub'dan Çalıştırma
+
+Hazır imajı Docker Hub'dan çekebilirsiniz:
+
+```bash
+# Latest versiyonu çek
+docker pull sivasbelediyesi/akillisehir:latest
+
+# Çalıştır
+docker run -d \
+  --name akillisehir-web \
+  -p 8000:8000 \
+  --env-file .env \
+  -v ./logs:/app/logs \
+  sivasbelediyesi/akillisehir:latest
+```
+
+### Log İzleme
+
+```bash
+# Container loglarını izle
+docker compose logs -f web
+
+# Access loglarını izle
+tail -f logs/access.log
+
+# Error loglarını izle
+tail -f logs/error.log
+```
+
+### Maintenance Komutları
+
+```bash
+# Container içinde komut çalıştır
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py collectstatic
+docker compose exec web python manage.py createsuperuser
+
+# Container'ı yeniden başlat
+docker compose restart web
+
+# Container'ı durdur ve sil
+docker compose down
+```
+
+## 🚀 GitHub Actions ile CI/CD
+
+### Docker Hub'a Otomatik Deploy
+
+Bu proje GitHub Actions kullanarak otomatik olarak Docker Hub'a deploy edilir:
+
+1. **GitHub Secrets'ı ayarlayın:**
+   - `DOCKER_USERNAME`: Docker Hub kullanıcı adınız
+   - `DOCKER_PASSWORD`: Docker Hub erişim token'ınız
+
+2. **Deployment:**
+   - `main` branch'e push edildiğinde otomatik build ve push
+   - Tag push edildiğinde versiyonlu imaj oluşturma
+   - Multi-platform support (linux/amd64, linux/arm64)
+
+3. **Kullanılabilir imaj etiketleri:**
+   ```bash
+   sivasbelediyesi/akillisehir:latest
+   sivasbelediyesi/akillisehir:main
+   sivasbelediyesi/akillisehir:v1.0.0
+   ```
+
+### Production Deployment
+
+Production ortamında deployment için:
+
+```bash
+# Latest versiyonu çek
+docker pull sivasbelediyesi/akillisehir:latest
+
+# Mevcut container'ı durdur
+docker compose down
+
+# Yeni versiyonu başlat
+docker compose up -d
+
+# Deployment'ı doğrula
+docker compose ps
+docker compose logs web
+```
+
 ### 📞 **Gelişmiş İletişim Modülü**
 - **Akıllı Form Sistemi:** Konu bazlı mesaj kategorilendirme
 - **Otomatik Bildirim:** Mesaj durumu güncellemeleri

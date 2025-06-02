@@ -1,0 +1,59 @@
+services:
+  web:
+    build: .
+    container_name: akillisehir-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Django ayarları
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=akillisehir.settings
+      - SECRET_KEY=${SECRET_KEY}
+
+      # Veritabanı ayarları (mevcut sunucu)
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+
+      # MinIO ayarları (mevcut sunucu)
+      - USE_MINIO=True
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_USE_HTTPS=${MINIO_USE_HTTPS:-False}
+      - MINIO_CUSTOM_DOMAIN=${MINIO_CUSTOM_DOMAIN}
+      - MINIO_STATIC_LOCATION=${MINIO_STATIC_LOCATION:-static}
+      - MINIO_MEDIA_LOCATION=${MINIO_MEDIA_LOCATION:-media}
+
+      # Gunicorn ayarları
+      - PORT=8000
+      - GUNICORN_WORKERS=2
+
+      # Superuser ayarları (opsiyonel)
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+
+    volumes:
+      # Log dosyaları için persistent volume
+      - ./logs:/app/logs
+      # Static dosyalar için local backup (MinIO ana storage)
+      - ./staticfiles:/app/staticfiles
+
+    # Sağlık kontrolü
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Metadata
+    labels:
+      - "com.sivasbelediyesi.service=akillisehir-web"
+      - "com.sivasbelediyesi.department=akillisehir"
+      - "com.sivasbelediyesi.description=Sivas Belediyesi Akıllı Şehir Web Portalı"
