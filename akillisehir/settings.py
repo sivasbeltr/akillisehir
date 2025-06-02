@@ -154,7 +154,7 @@ if USE_MINIO:
     STATICFILES_STORAGE = "akillisehir.storage_backends.MinIOStaticStorage"
 
     # Static ve Media URL'leri
-    protocol = "https" if not DEBUG else "http"
+    protocol = "https" if MINIO_USE_HTTPS else "http"
     STATIC_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
     MEDIA_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
 
