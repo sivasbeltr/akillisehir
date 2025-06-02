@@ -8,11 +8,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+print(
+    f"🔑 SECRET_KEY: {SECRET_KEY[:10]}..."
+)  # Only print the first 10 characters for security
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+print(f"🔧 DEBUG mode: {'enabled' if DEBUG else 'disabled'}")
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-
+print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 INSTALLED_APPS = [
     "admin_interface",
@@ -156,9 +160,11 @@ if USE_MINIO:
     # Static ve Media URL'leri
     protocol = "https" if MINIO_USE_HTTPS else "http"
     if DEBUG:
+        print("⚠️ DEBUG mode açık, MinIO HTTPS kullanımı devre dışı bırakıldı.")
         STATIC_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
         MEDIA_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
     else:
+        print("✅ DEBUG mode kapalı, MinIO HTTPS kullanımı aktif.")
         STATIC_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
         MEDIA_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
     # STATIC_ROOT collectstatic için gerekli (geçici klasör)
