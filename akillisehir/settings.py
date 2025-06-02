@@ -155,9 +155,12 @@ if USE_MINIO:
 
     # Static ve Media URL'leri
     protocol = "https" if MINIO_USE_HTTPS else "http"
-    STATIC_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
-    MEDIA_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
-
+    if DEBUG:
+        STATIC_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
+        MEDIA_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
+    else:
+        STATIC_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
+        MEDIA_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
     # STATIC_ROOT collectstatic için gerekli (geçici klasör)
     STATIC_ROOT = BASE_DIR / "staticfiles"
 
