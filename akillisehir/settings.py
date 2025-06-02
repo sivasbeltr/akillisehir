@@ -131,19 +131,24 @@ if USE_MINIO:
     MINIO_BUCKET_NAME = os.getenv(
         "MINIO_BUCKET_NAME", os.getenv("AWS_STORAGE_BUCKET_NAME", "akillisehir")
     )
-    MINIO_USE_HTTPS = os.getenv("MINIO_USE_HTTPS", "False").lower() == "true"
+    # HTTPS ayarını DEBUG moduna göre otomatik ayarla
+    MINIO_USE_HTTPS = (
+        False if DEBUG else os.getenv("MINIO_USE_HTTPS", "False").lower() == "true"
+    )
     MINIO_CUSTOM_DOMAIN = os.getenv(
         "MINIO_CUSTOM_DOMAIN",
-        os.getenv("AWS_S3_CUSTOM_DOMAIN", "akillisehir.sivas.bel.tr"),
+        os.getenv(
+            "AWS_S3_CUSTOM_DOMAIN", MINIO_ENDPOINT
+        ),  # Varsayılan olarak endpoint kullan
     )
 
     # Static ve Media klasör ayarları
     MINIO_STATIC_FILES_BUCKET = MINIO_BUCKET_NAME
     MINIO_MEDIA_FILES_BUCKET = MINIO_BUCKET_NAME
     MINIO_STATIC_LOCATION = os.getenv("MINIO_STATIC_LOCATION", "static")
-    MINIO_MEDIA_LOCATION = os.getenv(
-        "MINIO_MEDIA_LOCATION", "media"
-    )  # Django 4.2+ Storage System Configuration
+    MINIO_MEDIA_LOCATION = os.getenv("MINIO_MEDIA_LOCATION", "media")
+
+    # Django 4.2+ Storage System Configuration
     STORAGES = {
         "default": {
             "BACKEND": "akillisehir.storage_backends.MinIOMediaStorage",
@@ -157,22 +162,18 @@ if USE_MINIO:
     DEFAULT_FILE_STORAGE = "akillisehir.storage_backends.MinIOMediaStorage"
     STATICFILES_STORAGE = "akillisehir.storage_backends.MinIOStaticStorage"
 
-    # Static ve Media URL'leri
-    protocol = "https" if MINIO_USE_HTTPS else "http"
-    if DEBUG:
-        print("⚠️ DEBUG mode açık, MinIO HTTPS kullanımı devre dışı bırakıldı.")
-        STATIC_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
-        MEDIA_URL = f"http://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
-    else:
-        print("✅ DEBUG mode kapalı, MinIO HTTPS kullanımı aktif.")
-        STATIC_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
-        MEDIA_URL = f"https://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
+    # Static ve Media URL'leri - Her zaman HTTP kullan (DEBUG mode'da)
+    protocol = "http"  # SSL hatası nedeniyle zorla HTTP kullan
+    STATIC_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
+    MEDIA_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
+
     # STATIC_ROOT collectstatic için gerekli (geçici klasör)
     STATIC_ROOT = BASE_DIR / "staticfiles"
 
     print(f"✅ MinIO Storage aktif: {protocol}://{MINIO_ENDPOINT}")
     print(f"   📦 Bucket: {MINIO_BUCKET_NAME}")
     print(f"   🌐 Domain: {MINIO_CUSTOM_DOMAIN}")
+    print(f"   🔒 HTTPS: {MINIO_USE_HTTPS}")
     print(f"   📁 Static: {STATIC_URL}")
     print(f"   📷 Media: {MEDIA_URL}")
 else:
