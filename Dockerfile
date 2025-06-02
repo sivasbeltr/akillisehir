@@ -92,15 +92,16 @@ RUN mkdir -p /app/staticfiles && \
 RUN mkdir -p /app/media && \
     chown -R django:django /app/media
 
-# Log dizini oluştur
+# Log dizini oluştur ve doğru izinleri ver
 RUN mkdir -p /app/logs && \
-    chown -R django:django /app/logs
+    chown -R django:django /app/logs && \
+    chmod 755 /app/logs
 
 # Entrypoint script'i kopyala
 COPY --chown=django:django entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Port açık
+# Port açığa çıkar
 EXPOSE 8000
 
 # Kullanıcıyı değiştir
@@ -112,3 +113,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Varsayılan komut
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "--access-logfile", "/app/logs/access.log", "--error-logfile", "/app/logs/error.log", "akillisehir.wsgi:application"]

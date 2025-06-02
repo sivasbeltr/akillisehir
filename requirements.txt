@@ -1,5 +1,5 @@
 django
-psycopg
+psycopg2-binary
 python-dotenv
 djangorestframework
 djangorestframework-gis
