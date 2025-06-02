@@ -1,5 +1,4 @@
-# syntax=docker/dockerfile:1
-FROM python:3.13-slim:latest
+FROM python:3.13.3-slim-bullseye:latest
 
 WORKDIR /app
 
@@ -31,8 +30,6 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Statik dosyaları topla
-RUN python manage.py collectstatic --noinput || true
 
 EXPOSE 8000
 
