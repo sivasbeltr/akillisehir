@@ -92,14 +92,14 @@ RUN mkdir -p /app/staticfiles && \
 RUN mkdir -p /app/media && \
     chown -R django:django /app/media
 
-# Log dizini oluştur ve doğru izinleri ver
+# Entrypoint script'i kopyala ve izin ver
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Log dizini oluştur ve django kullanıcısına izin ver (root olarak)
 RUN mkdir -p /app/logs && \
     chown -R django:django /app/logs && \
     chmod 755 /app/logs
-
-# Entrypoint script'i kopyala
-COPY --chown=django:django entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 
 # Port açığa çıkar
 EXPOSE 8000

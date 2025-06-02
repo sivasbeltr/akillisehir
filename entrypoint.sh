@@ -7,11 +7,8 @@ set -e
 
 echo "🚀 Akıllı Şehir Web Portalı başlatılıyor..."
 echo "🏛️ Sivas Belediyesi Akıllı Şehir Müdürlüğü"
-
-# Log dizinini oluştur ve izinleri düzelt
-mkdir -p /app/logs
-chown -R django:django /app/logs
-chmod 755 /app/logs
+echo "🌐 Port: ${PORT:-8000}"
+echo "👥 Workers: ${GUNICORN_WORKERS:-2}"
 
 # Ortam değişkenlerini kontrol et
 if [ -z "$SECRET_KEY" ]; then
