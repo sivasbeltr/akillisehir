@@ -18,6 +18,11 @@ print(f"🔧 DEBUG mode: {'enabled' if DEBUG else 'disabled'}")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True  # HTTP isteklerini HTTPS'ye yönlendirir
+    SESSION_COOKIE_SECURE = True  # Çerezler yalnızca HTTPS üzerinden gönderilir
+    CSRF_COOKIE_SECURE = True  # CSRF çerezleri yalnızca HTTPS üzerinden gönderilir    
+
 INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
