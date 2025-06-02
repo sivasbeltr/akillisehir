@@ -163,7 +163,7 @@ if USE_MINIO:
     STATICFILES_STORAGE = "akillisehir.storage_backends.MinIOStaticStorage"
 
     # Static ve Media URL'leri - Her zaman HTTP kullan (DEBUG mode'da)
-    protocol = "http"  # SSL hatası nedeniyle zorla HTTP kullan
+    protocol = "https"  # SSL hatası nedeniyle zorla HTTP kullan
     STATIC_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
     MEDIA_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
 
