@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = False
-print(f"DEBUG mode: {DEBUG}")
+DEBUG = os.getenv("APP_DEBUG", "False").lower() == "true"
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 if not DEBUG:
@@ -136,9 +136,7 @@ if USE_MINIO:
         "MINIO_BUCKET_NAME", os.getenv("AWS_STORAGE_BUCKET_NAME", "akillisehir")
     )
     # HTTPS ayarını DEBUG moduna göre otomatik ayarla
-    MINIO_USE_HTTPS = (
-        False if DEBUG else os.getenv("MINIO_USE_HTTPS", "False").lower() == "true"
-    )
+    MINIO_USE_HTTPS = os.getenv("MINIO_USE_HTTPS", "False").lower() == "true"
     MINIO_CUSTOM_DOMAIN = os.getenv(
         "MINIO_CUSTOM_DOMAIN",
         os.getenv(
@@ -162,12 +160,7 @@ if USE_MINIO:
         },
     }
 
-    # Legacy support (Django < 4.2 için)
-    DEFAULT_FILE_STORAGE = "akillisehir.storage_backends.MinIOMediaStorage"
-    STATICFILES_STORAGE = "akillisehir.storage_backends.MinIOStaticStorage"
-
-    # Static ve Media URL'leri - Her zaman HTTP kullan (DEBUG mode'da)
-    protocol = "https"  # SSL hatası nedeniyle zorla HTTP kullan
+    protocol = "https"
     STATIC_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_STATIC_LOCATION}/"
     MEDIA_URL = f"{protocol}://{MINIO_CUSTOM_DOMAIN}/{MINIO_MEDIA_LOCATION}/"
 
@@ -188,7 +181,5 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
     print("📁 Local storage aktif")
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
