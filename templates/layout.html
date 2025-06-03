@@ -9,6 +9,8 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+     
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -69,10 +71,14 @@
                         class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-sivas-600 dark:hover:text-sivas-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 font-medium">
                         <i class="fas fa-home mr-2 text-sm"></i>Ana Sayfa
                     </a>
-                    
-                    <a href="{% url 'projects:project_list' %}"
+                      <a href="{% url 'projects:project_list' %}"
                         class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-sivas-600 dark:hover:text-sivas-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 font-medium">
                         <i class="fas fa-tasks mr-2 text-sm"></i>Projeler
+                    </a>
+
+                    <a href="{% url 'fileman:file_list' %}"
+                        class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-sivas-600 dark:hover:text-sivas-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 font-medium">
+                        <i class="fas fa-folder-open mr-2 text-sm"></i>Dosyalar
                     </a>
 
                     <!-- Hizmetler Dropdown -->

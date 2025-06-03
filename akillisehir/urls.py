@@ -20,10 +20,14 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from . import views
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("cms.urls")),
     path("projeler/", include("projects.urls")),
+    path("dosyalar/", include("fileman.urls")),
+    path("raise500", views.raise_500_error),
 ]
 
 # Media files serving during development

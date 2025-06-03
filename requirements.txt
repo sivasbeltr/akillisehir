@@ -8,3 +8,5 @@ weasyprint
 pillow
 minio
 gunicorn
+django-mptt
+django-mptt-admin

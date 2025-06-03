@@ -1,0 +1,458 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Bölümü - Kompakt -->
+<div class="bg-gradient-to-br from-sivas-600 via-sivas-700 to-blue-800 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-center">
+            <div class="flex items-center justify-center mb-3">
+                <div class="bg-white/10 backdrop-blur-sm rounded-full p-3 mr-3">
+                    <i class="fas fa-folder-open text-2xl text-white"></i>
+                </div>
+                <h1 class="text-3xl lg:text-4xl font-bold text-white">Dosya Arşivi</h1>
+            </div>
+            <p class="text-lg text-blue-100 max-w-2xl mx-auto">
+                Sivas Belediyesi Akıllı Şehir Müdürlüğü resmi doküman ve dosya arşivi
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Ana İçerik -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Filtreleme Bölümü -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
+        <form method="GET" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 lg:items-end">
+            <!-- Arama -->
+            <div class="lg:col-span-5">
+                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <i class="fas fa-search mr-2 text-sivas-600"></i>Dosya Ara
+                </label>
+                <input type="text" 
+                       name="search" 
+                       id="search"
+                       value="{{ search_query }}"
+                       placeholder="Dosya adı veya açıklama ile ara..."
+                       class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-sivas-500 focus:border-transparent transition-all duration-200">
+            </div>
+
+            <!-- Dosya Tipi -->
+            <div class="lg:col-span-3">
+                <label for="file_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <i class="fas fa-file-alt mr-2 text-emerald-600"></i>Dosya Tipi
+                </label>
+                <select name="file_type" 
+                        id="file_type"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sivas-500 focus:border-transparent transition-all duration-200">
+                    <option value="">Tüm Dosya Tipleri</option>
+                    {% for file_type in file_types %}
+                        <option value="{{ file_type.id }}" 
+                                {% if selected_file_type and selected_file_type.id == file_type.id %}selected{% endif %}>
+                            {{ file_type.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Butonlar -->
+            <div class="lg:col-span-4 flex space-x-3">
+                <button type="submit" 
+                        class="flex-1 bg-gradient-to-r from-sivas-600 to-sivas-700 hover:from-sivas-700 hover:to-sivas-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-search mr-2"></i>Filtrele
+                </button>
+                <a href="{% url 'fileman:file_list' %}" 
+                   class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl font-medium transition-all duration-200 text-center">
+                    <i class="fas fa-times mr-2"></i>Temizle
+                </a>
+            </div>
+        </form>
+
+        <!-- Sonuç Bilgisi -->
+        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                    <span><strong>{{ total_files }}</strong> dosya bulundu</span>
+                    {% if selected_category %}
+                        <span class="mx-2">•</span>
+                        <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs">
+                            <i class="{{ selected_category.icon }} mr-1"></i>{{ selected_category.name }}
+                        </span>
+                    {% endif %}
+                    {% if selected_file_type %}
+                        <span class="mx-2">•</span>
+                        <span class="bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-3 py-1 rounded-full text-xs">
+                            <i class="{{ selected_file_type.icon }} mr-1"></i>{{ selected_file_type.name }}
+                        </span>
+                    {% endif %}
+                </div>
+                {% if files.has_other_pages %}
+                    <span>Sayfa {{ files.number }} / {{ files.paginator.num_pages }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana İçerik Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">        <!-- Sol Taraf - Kategori Ağacı -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-sitemap mr-3 text-purple-600"></i>Kategoriler
+                    </h3>
+                </div>
+                <div class="p-4 max-h-96 overflow-y-auto">
+                    <!-- Tüm Dosyalar -->
+                    <a href="{% url 'fileman:file_list' %}" 
+                       class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group {% if not selected_category %}bg-sivas-50 dark:bg-sivas-900 text-sivas-700 dark:text-sivas-300{% else %}text-gray-700 dark:text-gray-300{% endif %}">
+                        <i class="fas fa-folder-open mr-3 text-blue-500 w-4"></i>
+                        <span class="font-medium">Tüm Dosyalar</span>
+                        <span class="ml-auto text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded-full">{{ total_files }}</span>
+                    </a>
+
+                    <!-- Kategori Ağacı -->
+                    <div class="mt-2 space-y-1">
+                        {% for category in categories %}
+                            {% if not category.parent %}
+                                <div class="category-item" data-category-id="{{ category.id }}">
+                                    <div class="flex items-center">
+                                        <!-- Toggle Button for Children -->
+                                        {% if category.children.exists %}
+                                            <button class="category-toggle p-1 mr-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-200" 
+                                                    data-target="children-{{ category.id }}">
+                                                <i class="fas fa-chevron-right text-xs text-gray-500 transform transition-transform duration-200"></i>
+                                            </button>
+                                        {% else %}
+                                            <div class="w-6"></div>
+                                        {% endif %}
+                                        
+                                        <!-- Category Link -->
+                                        <a href="?category={{ category.id }}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                           class="flex items-center flex-1 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group {% if selected_category and selected_category.id == category.id %}bg-sivas-50 dark:bg-sivas-900 text-sivas-700 dark:text-sivas-300{% else %}text-gray-700 dark:text-gray-300{% endif %}">
+                                            <i class="{{ category.icon }} mr-3 w-4" style="color: {{ category.color }}"></i>
+                                            <span class="font-medium text-sm truncate">{{ category.name }}</span>
+                                            <span class="ml-auto text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded-full">{{ category.files.count }}</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Alt kategoriler -->
+                                    {% if category.children.exists %}
+                                        <div id="children-{{ category.id }}" class="hidden ml-8 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-600 pl-3">
+                                            {% for child in category.children.all %}
+                                                <a href="?category={{ child.id }}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                                   class="flex items-center px-3 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 {% if selected_category and selected_category.id == child.id %}bg-sivas-50 dark:bg-sivas-900 text-sivas-700 dark:text-sivas-300{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                                                    <i class="{{ child.icon }} mr-3 w-3 text-xs" style="color: {{ child.color }}"></i>
+                                                    <span class="text-sm truncate">{{ child.name }}</span>
+                                                    <span class="ml-auto text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{{ child.files.count }}</span>
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>        <!-- Sağ Taraf - Dosya Listesi -->
+        <div class="lg:col-span-3">
+            {% if files %}
+                <!-- Masaüstü için Tablo Görünümü -->
+                <div class="hidden md:block bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <!-- Tablo Başlığı -->
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-list mr-3 text-emerald-600"></i>Dosyalar
+                            <span class="ml-3 text-sm font-normal text-gray-500 dark:text-gray-400">
+                                ({{ files|length }} / {{ total_files }})
+                            </span>
+                        </h3>
+                    </div>
+
+                    <!-- Tablo -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Dosya
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Kategori
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Tip
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Tarih
+                                    </th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        İşlemler
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for file in files %}
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                                        <!-- Dosya Bilgisi -->
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 mr-4">
+                                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: {{ file.file_type.color }}15;">
+                                                        <i class="{{ file.file_type.icon }} text-lg" style="color: {{ file.file_type.color }}"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-sivas-600 dark:group-hover:text-sivas-400 transition-colors duration-200">
+                                                        {{ file.name }}
+                                                    </p>
+                                                    {% if file.description %}
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                                                            {{ file.description }}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Kategori -->
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <i class="{{ file.category.icon }} mr-2 text-sm" style="color: {{ file.category.color }}"></i>
+                                                <span class="text-sm text-gray-900 dark:text-white">{{ file.category.name }}</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- Dosya Tipi -->
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                                                  style="background-color: {{ file.file_type.color }}20; color: {{ file.file_type.color }};">
+                                                <i class="{{ file.file_type.icon }} mr-1"></i>
+                                                {{ file.file_type.name }}
+                                            </span>
+                                        </td>
+
+                                        <!-- Tarih -->
+                                        <td class="px-6 py-4">
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">
+                                                {{ file.created_at|date:"d.m.Y" }}
+                                            </span>
+                                        </td>
+
+                                        <!-- İşlemler -->
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end space-x-2">
+                                                <a href="{{ file.file.url }}" 
+                                                   target="_blank"
+                                                   class="text-sivas-600 hover:text-sivas-800 dark:text-sivas-400 dark:hover:text-sivas-300 p-2 rounded-lg hover:bg-sivas-50 dark:hover:bg-sivas-900 transition-all duration-200"
+                                                   title="Görüntüle">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </a>
+                                                <a href="{{ file.file.url }}" 
+                                                   download
+                                                   class="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900 transition-all duration-200"
+                                                   title="İndir">
+                                                    <i class="fas fa-download text-sm"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mobil için Kart Görünümü -->
+                <div class="md:hidden space-y-4">
+                    {% for file in files %}
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                            <!-- Mobil Dosya Başlığı -->
+                            <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-4 py-3">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: {{ file.file_type.color }}15;">
+                                            <i class="{{ file.file_type.icon }}" style="color: {{ file.file_type.color }}"></i>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                            {{ file.name }}
+                                        </h3>
+                                        <div class="flex items-center mt-1 space-x-3">
+                                            <span class="inline-flex items-center text-xs" style="color: {{ file.file_type.color }};">
+                                                <i class="{{ file.file_type.icon }} mr-1"></i>
+                                                {{ file.file_type.name }}
+                                            </span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ file.created_at|date:"d.m.Y" }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobil Dosya İçeriği -->
+                            <div class="p-4">
+                                {% if file.description %}
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                                        {{ file.description }}
+                                    </p>
+                                {% endif %}
+
+                                <!-- Kategori -->
+                                <div class="flex items-center mb-3">
+                                    <i class="{{ file.category.icon }} mr-2 text-sm" style="color: {{ file.category.color }}"></i>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ file.category.name }}</span>
+                                </div>
+
+                                <!-- Aksiyon Butonları -->
+                                <div class="flex space-x-2">
+                                    <a href="{{ file.file.url }}" 
+                                       target="_blank"
+                                       class="flex-1 bg-gradient-to-r from-sivas-600 to-sivas-700 hover:from-sivas-700 hover:to-sivas-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-center">
+                                        <i class="fas fa-eye mr-2"></i>Görüntüle
+                                    </a>
+                                    <a href="{{ file.file.url }}" 
+                                       download
+                                       class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Sayfalama -->
+                {% if files.has_other_pages %}
+                    <div class="mt-12 flex justify-center">
+                        <nav class="flex items-center space-x-2">
+                            {% if files.has_previous %}
+                                <a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                                <a href="?page={{ files.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            {% endif %}
+
+                            {% for num in files.paginator.page_range %}
+                                {% if num == files.number %}
+                                    <span class="px-4 py-2 rounded-lg bg-sivas-600 text-white font-medium">{{ num }}</span>
+                                {% elif num > files.number|add:'-3' and num < files.number|add:'3' %}
+                                    <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                       class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                        {{ num }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if files.has_next %}
+                                <a href="?page={{ files.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                                <a href="?page={{ files.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.file_type %}&file_type={{ request.GET.file_type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                {% endif %}
+            {% else %}
+                <!-- Boş Durum -->
+                <div class="text-center py-16">
+                    <div class="bg-gray-100 dark:bg-gray-800 rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                        <i class="fas fa-folder-open text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Dosya Bulunamadı</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        {% if search_query or selected_category or selected_file_type %}
+                            Arama kriterlerinize uygun dosya bulunamadı. Filtreleri temizleyerek tekrar deneyin.
+                        {% else %}
+                            Henüz hiç dosya eklenmemiş.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'fileman:file_list' %}" 
+                       class="inline-flex items-center px-6 py-3 bg-sivas-600 hover:bg-sivas-700 text-white rounded-lg font-medium transition-colors duration-200">
+                        <i class="fas fa-refresh mr-2"></i>Filtreleri Temizle
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+<script>
+// Category tree toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryToggles = document.querySelectorAll('.category-toggle');
+    
+    categoryToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const targetId = this.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+            const chevronIcon = this.querySelector('i');
+            
+            if (targetElement) {
+                if (targetElement.classList.contains('hidden')) {
+                    // Göster
+                    targetElement.classList.remove('hidden');
+                    chevronIcon.style.transform = 'rotate(90deg)';
+                } else {
+                    // Gizle
+                    targetElement.classList.add('hidden');
+                    chevronIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+    });
+    
+    // Seçili kategorinin ebeveynlerini aç
+    const selectedCategory = document.querySelector('.bg-sivas-50, .dark\\:bg-sivas-900');
+    if (selectedCategory) {
+        let parent = selectedCategory.closest('[id^="children-"]');
+        while (parent) {
+            parent.classList.remove('hidden');
+            const parentId = parent.id.replace('children-', '');
+            const toggle = document.querySelector(`[data-target="${parent.id}"] i`);
+            if (toggle) {
+                toggle.style.transform = 'rotate(90deg)';
+            }
+            parent = parent.parentElement.closest('[id^="children-"]');
+        }
+    }
+});
+</script>
+{% endblock %}
