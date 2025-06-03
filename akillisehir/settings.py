@@ -22,6 +22,10 @@ if not DEBUG:
         "https",
     )  # Proxy üzerinden HTTPS kullanımı
 
+# Custom Error Pages
+HANDLER404 = "akillisehir.views.custom_404"
+HANDLER500 = "akillisehir.views.custom_500"
+
 INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
