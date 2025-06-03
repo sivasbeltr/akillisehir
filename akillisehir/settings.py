@@ -3,25 +3,22 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-print(
-    f"🔑 SECRET_KEY: {SECRET_KEY[:10]}..."
-)  # Only print the first 10 characters for security
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-print(f"🔧 DEBUG mode: {'enabled' if DEBUG else 'disabled'}")
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True  # HTTP isteklerini HTTPS'ye yönlendirir
     SESSION_COOKIE_SECURE = True  # Çerezler yalnızca HTTPS üzerinden gönderilir
-    CSRF_COOKIE_SECURE = True  # CSRF çerezleri yalnızca HTTPS üzerinden gönderilir    
+    CSRF_COOKIE_SECURE = True  # CSRF çerezleri yalnızca HTTPS üzerinden gönderilir
+    SECURE_PROXY_SSL_HEADER = (
+        "HTTP_X_FORWARDED_PROTO",
+        "https",
+    )  # Proxy üzerinden HTTPS kullanımı
 
 INSTALLED_APPS = [
     "admin_interface",
